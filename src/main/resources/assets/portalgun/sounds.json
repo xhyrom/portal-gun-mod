@@ -1,0 +1,33 @@
+    {
+      "portal1_shoot": {
+	      "subtitle": "subtitles.portalgun.portal1_shoot",
+
+        "sounds": [
+          "portalgun:portal1_shoot"
+        ]
+      }, 
+	  "portal2_shoot": {
+	      "subtitle": "subtitles.portalgun.portal2_shoot",
+
+        "sounds": [
+          "portalgun:portal2_shoot"
+        ]
+      }, 
+	  "portal_open": {
+	      "subtitle": "subtitles.portalgun.portal_open",
+
+        "sounds": [
+          "portalgun:portal_open1",
+		  "portalgun:portal_open2",
+		  "portalgun:portal_open3"
+        ]
+      },
+	  "portal_close": {
+	      "subtitle": "subtitles.portalgun.portal_close",
+
+        "sounds": [
+          "portalgun:portal_close1",
+		  "portalgun:portal_close2"
+        ]
+      }
+	}
