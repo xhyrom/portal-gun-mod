@@ -6,6 +6,7 @@ import dev.xhyrom.portalgun.client.PortalGunClient;
 import dev.xhyrom.portalgun.client.renderer.models.PortalOverlayModel;
 import dev.xhyrom.portalgun.entities.CustomPortal;
 import dev.xhyrom.portalgun.items.ClawItem;
+import dev.xhyrom.portalgun.items.PortalGunCreativeModeTabs;
 import dev.xhyrom.portalgun.items.PortalGunItem;
 import dev.xhyrom.portalgun.misc.PortalManipulationPolyfill;
 import dev.xhyrom.portalgun.misc.RemoteCallables;
@@ -13,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -21,6 +23,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -86,9 +89,8 @@ public class PortalGunMod {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, MODID);
-
     public static final RegistryObject<PortalGunItem> PORTAL_GUN = ITEMS.register("portal_gun", () -> new PortalGunItem(
-            new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)
+            new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC).tab(PortalGunCreativeModeTabs.TAB)
     ));
     public static final RegistryObject<Item> PORTAL_GUN_BODY = ITEMS.register("portal_gun_body", () -> new Item(
             new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.RARE)
