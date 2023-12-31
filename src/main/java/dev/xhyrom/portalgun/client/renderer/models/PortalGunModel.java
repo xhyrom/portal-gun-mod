@@ -21,7 +21,7 @@ public class PortalGunModel extends AnimatedGeoModel<PortalGunItem> {
         /*if (config.enabled.enableOldPortalGunModel)
             return id("textures/item/portal_gun_og.png");
         else*/
-        return id("textures/item/portal_gun.png");
+        return id("textures/item/portalgun.png");
     }
 
     @Override

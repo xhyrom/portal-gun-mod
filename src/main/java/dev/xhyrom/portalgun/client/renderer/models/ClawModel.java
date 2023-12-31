@@ -14,7 +14,7 @@ public class ClawModel extends AnimatedGeoModel<ClawItem> {
 
     @Override
     public ResourceLocation getTextureResource(ClawItem object) {
-        return id("textures/item/portal_gun.png");
+        return id("textures/item/portalgun.png");
     }
 
     @Override

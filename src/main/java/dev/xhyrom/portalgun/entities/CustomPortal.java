@@ -3,10 +3,12 @@ package dev.xhyrom.portalgun.entities;
 import dev.xhyrom.portalgun.PortalGunMod;
 import dev.xhyrom.portalgun.PortalGunRecord;
 import dev.xhyrom.portalgun.misc.IntBoxPolyfill;
+import dev.xhyrom.portalgun.misc.PortalPolyfill;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -64,6 +66,14 @@ public class CustomPortal extends Portal {
         }
     }
 
+    // disable the interpolation between last tick pos and this tick pos
+    // because the portal should change abruptly
+    @Override
+    public void setPos(double x, double y, double z) {
+        super.setPos(x, y, z);
+        setOldPosAndRot();
+    }
+
     void updateState() {
         if (descriptor == null || wallBox == null) {
             LOGGER.error("Portal info abnormal {}", this);
@@ -79,18 +89,23 @@ public class CustomPortal extends Portal {
             kill();
             return;
         }
-        if (thisSideUpdateCounter != thisSideInfo.updateCounter()) {
+        if (thisSideUpdateCounter != thisSideInfo.updateCounter() || !thisSideInfo.portalId().equals(getUUID())) {
             // replaced by new portal
             kill();
             return;
         }
         // check block status
-        boolean wallIntact = wallBox.fastStream().allMatch(p -> PortalGunMod.isBlockSolid(level, p));
-        boolean areaClear = airBox.fastStream().allMatch(p -> level.getBlockState(p).isAir());
-        if (!wallIntact || !areaClear) {
+        if (!PortalGunMod.isWallValid(level, wallBox) || !PortalGunMod.isAreaClear(level, airBox)) {
             kill();
             record.data.remove(descriptor);
             record.setDirty();
+            level.playSound(
+                    null,
+                    getX(), getY(), getZ(),
+                    PortalGunMod.PORTAL_CLOSE_EVENT.get(),
+                    SoundSource.PLAYERS,
+                    1.0F, 1.0F
+            );
             return;
         }
         if (otherSideInfo == null) {
@@ -106,12 +121,21 @@ public class CustomPortal extends Portal {
         }
         if (otherSideInfo.updateCounter() != otherSideUpdateCounter) {
             // other side is replaced by new portal, update linking
+            if (!isVisible()) {
+                level.playSound(
+                        null,
+                        getX(), getY(), getZ(),
+                        PortalGunMod.PORTAL_OPEN_EVENT.get(),
+                        SoundSource.PLAYERS,
+                        1.0F, 1.0F
+                );
+            }
             otherSideUpdateCounter = otherSideInfo.updateCounter();
             teleportable = true;
             setIsVisible(true);
             setDestination(otherSideInfo.portalPos());
             setDestinationDimension(otherSideInfo.portalDim());
-            setOrientationRotation(otherSideInfo.portalOrientation());
+            PortalPolyfill.setOtherSideOrientation(this, otherSideInfo.portalOrientation());//setOtherSideOrientation(otherSideInfo.portalOrientation());
             reloadAndSyncToClient();
             return;
         }

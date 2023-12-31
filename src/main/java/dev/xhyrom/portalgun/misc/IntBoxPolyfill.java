@@ -26,6 +26,9 @@ public class IntBoxPolyfill {
         else if (signedSize < 0) {
             return base + signedSize + 1;
         }
+        else if (signedSize == 0) {
+            return base;
+        }
         else {
             throw new IllegalArgumentException("Signed size cannot be zero");
         }
