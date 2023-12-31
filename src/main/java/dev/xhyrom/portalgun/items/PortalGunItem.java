@@ -245,7 +245,7 @@ public class PortalGunItem extends Item implements IAnimatable {
         portal.airBox = placement.areaBox;
         portal.thisSideUpdateCounter = thisSideInfo == null ? 0 : thisSideInfo.updateCounter();
         portal.otherSideUpdateCounter = otherSideInfo == null ? 0 : otherSideInfo.updateCounter();
-        PortalManipulationPolyfill.makePortalRound(portal, 30);
+        PortalManipulationPolyfill.makePortalRound(portal, 20);
         PortalPolyfill.disableDefaultAnimation(portal);
 
         if (otherSideInfo == null) {
