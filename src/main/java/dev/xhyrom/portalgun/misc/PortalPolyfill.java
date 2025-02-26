@@ -17,10 +17,10 @@ public class PortalPolyfill {
 
     public static void setRotationTransformationD(Portal portal, @Nullable DQuaternion quaternion) {
         if (quaternion == null) {
-            portal.rotation = null;
+            portal.setRotation(null);
         }
         else {
-            portal.rotation = quaternion.fixFloatingPointErrorAccumulation().toMcQuaternion();
+            portal.setRotation(DQuaternion.fromMcQuaternion(quaternion.fixFloatingPointErrorAccumulation().toMcQuaternion()));
         }
         portal.updateCache();
     }

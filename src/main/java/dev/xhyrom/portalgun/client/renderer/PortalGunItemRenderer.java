@@ -3,7 +3,7 @@ package dev.xhyrom.portalgun.client.renderer;
 import dev.xhyrom.portalgun.client.renderer.models.PortalGunModel;
 import dev.xhyrom.portalgun.items.PortalGunItem;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class PortalGunItemRenderer extends GeoItemRenderer<PortalGunItem> {
     public PortalGunItemRenderer() {

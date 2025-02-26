@@ -5,7 +5,6 @@ import dev.xhyrom.portalgun.client.renderer.CustomPortalEntityRenderer;
 import dev.xhyrom.portalgun.mixin.EntityModelLayersAccessor;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraftforge.network.NetworkDirection;
 
 import static dev.xhyrom.portalgun.PortalGunMod.id;
 

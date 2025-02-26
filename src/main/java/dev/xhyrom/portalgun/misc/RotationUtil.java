@@ -1,10 +1,9 @@
 package dev.xhyrom.portalgun.misc;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.shadowed.eliotlash.mclib.utils.MathHelper;
 
 public abstract class RotationUtil {
     private static final Direction[][] DIR_WORLD_TO_PLAYER = new Direction[6][];
@@ -14,7 +13,7 @@ public abstract class RotationUtil {
             for(Direction direction : Direction.values()) {
                 Vec3 directionVector = Vec3.atLowerCornerOf(direction.getNormal());
                 directionVector = RotationUtil.vecWorldToPlayer(directionVector, gravityDirection);
-                DIR_WORLD_TO_PLAYER[gravityDirection.get3DDataValue()][direction.get3DDataValue()] = Direction.fromNormal(new BlockPos(directionVector));
+                DIR_WORLD_TO_PLAYER[gravityDirection.get3DDataValue()][direction.get3DDataValue()] = DirectionPolyfill.fromNormal(new BlockPos(new Vec3i((int) Math.floor(directionVector.x), (int) Math.floor(directionVector.y), (int) Math.floor(directionVector.z))));
             }
         }
     }

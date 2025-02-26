@@ -4,19 +4,20 @@ import dev.xhyrom.portalgun.client.renderer.ClawItemRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.function.Consumer;
 
-public class ClawItem extends Item implements IAnimatable {
+public class ClawItem extends Item implements GeoAnimatable {
 
     public static String controllerName = "clawController";
-    public AnimationFactory factory = new AnimationFactory(this);
+    public AnimatableInstanceCache factory = GeckoLibUtil.createInstanceCache(this);
 
     public ClawItem(Properties settings) {
         super(settings);
@@ -34,18 +35,23 @@ public class ClawItem extends Item implements IAnimatable {
         });
     }
 
-    private <P extends Item & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
+    private <P extends Item & GeoAnimatable> PlayState predicate(AnimationState<P> event) {
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData animationData) {
+    public void registerControllers(AnimatableManager.ControllerRegistrar animationData) {
         AnimationController controller = new AnimationController(this, controllerName, 1, this::predicate);
-        animationData.addAnimationController(controller);
+        animationData.add(controller);
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.factory;
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return 0;
     }
 }

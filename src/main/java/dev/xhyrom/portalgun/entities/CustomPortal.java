@@ -61,7 +61,7 @@ public class CustomPortal extends Portal {
     public void tick() {
         super.tick();
 
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             updateState();
         }
     }
@@ -95,11 +95,11 @@ public class CustomPortal extends Portal {
             return;
         }
         // check block status
-        if (!PortalGunMod.isWallValid(level, wallBox) || !PortalGunMod.isAreaClear(level, airBox)) {
+        if (!PortalGunMod.isWallValid(level(), wallBox) || !PortalGunMod.isAreaClear(level(), airBox)) {
             kill();
             record.data.remove(descriptor);
             record.setDirty();
-            level.playSound(
+            level().playSound(
                     null,
                     getX(), getY(), getZ(),
                     PortalGunMod.PORTAL_CLOSE_EVENT.get(),
@@ -122,7 +122,7 @@ public class CustomPortal extends Portal {
         if (otherSideInfo.updateCounter() != otherSideUpdateCounter) {
             // other side is replaced by new portal, update linking
             if (!isVisible()) {
-                level.playSound(
+                level().playSound(
                         null,
                         getX(), getY(), getZ(),
                         PortalGunMod.PORTAL_OPEN_EVENT.get(),

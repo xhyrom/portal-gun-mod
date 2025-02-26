@@ -69,13 +69,13 @@ public enum AARotation {
     }
 
     public Direction transformDirection(Direction direction) {
-        return Direction.fromNormal(transform(direction.getNormal()));
+        return DirectionPolyfill.fromNormal(transform(direction.getNormal()));
     }
 
     @Nonnull
     public static Direction dirCrossProduct(Direction a, Direction b) {
         Validate.isTrue(a.getAxis() != b.getAxis());
-        Direction result = Direction.fromNormal(
+        Direction result = DirectionPolyfill.fromNormal(
                 a.getStepY() * b.getStepZ() - a.getStepZ() * b.getStepY(),
                 a.getStepZ() * b.getStepX() - a.getStepX() * b.getStepZ(),
                 a.getStepX() * b.getStepY() - a.getStepY() * b.getStepX()

@@ -12,9 +12,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.q_misc_util.my_util.DQuaternion;
 
 import static dev.xhyrom.portalgun.PortalGunMod.id;
 import static net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;

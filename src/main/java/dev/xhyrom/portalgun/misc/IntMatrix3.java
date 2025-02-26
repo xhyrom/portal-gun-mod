@@ -1,11 +1,11 @@
 package dev.xhyrom.portalgun.misc;
 
-import com.mojang.math.Matrix3f;
 import com.mojang.math.OctahedralGroup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -46,11 +46,6 @@ public class IntMatrix3 {
                 m.transform(y),
                 m.transform(z)
         );
-    }
-
-    public Direction transformDirection(Direction direction) {
-        BlockPos vec = transform(direction.getNormal());
-        return Direction.fromNormal(vec.getX(), vec.getY(), vec.getZ());
     }
 
     @Override

@@ -3,11 +3,11 @@ package dev.xhyrom.portalgun.client.renderer.models;
 import dev.xhyrom.portalgun.items.ClawItem;
 import dev.xhyrom.portalgun.items.PortalGunItem;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
 import static dev.xhyrom.portalgun.PortalGunMod.id;
 
-public class PortalGunModel extends AnimatedGeoModel<PortalGunItem> {
+public class PortalGunModel extends GeoModel<PortalGunItem> {
     @Override
     public ResourceLocation getModelResource(PortalGunItem object) {
         /*if (config.enabled.enableOldPortalGunModel)

@@ -2,8 +2,7 @@ package dev.xhyrom.portalgun.client.renderer;
 
 import dev.xhyrom.portalgun.client.renderer.models.ClawModel;
 import dev.xhyrom.portalgun.items.ClawItem;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class ClawItemRenderer extends GeoItemRenderer<ClawItem> {
     public ClawItemRenderer() {

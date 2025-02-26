@@ -42,25 +42,24 @@ import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-public class PortalGunItem extends Item implements IAnimatable {
+public class PortalGunItem extends Item implements GeoAnimatable {
     private static Logger LOGGER = LogManager.getLogger();
     public static final int COOLDOWN_TICKS = 4;
 
     public static String controllerName = "portalgunController";
 
-    public final AnimationFactory animationFactory = new AnimationFactory(this);
+    public final AnimatableInstanceCache animationFactory = GeckoLibUtil.createInstanceCache(this);
 
     public PortalGunItem(Properties settings) {
         super(settings);
@@ -78,19 +77,24 @@ public class PortalGunItem extends Item implements IAnimatable {
         });
     }
 
-    private <P extends Item & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
+    private <P extends Item & GeoAnimatable> PlayState predicate(AnimationState<P> event) {
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData animationData) {
+    public void registerControllers(AnimatableManager.ControllerRegistrar animationData) {
         AnimationController controller = new AnimationController(this, controllerName, 1, this::predicate);
-        animationData.addAnimationController(controller);
+        animationData.add(controller);
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.animationFactory;
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return 0;
     }
 
     @Override
@@ -175,7 +179,7 @@ public class PortalGunItem extends Item implements IAnimatable {
 
         Validate.isTrue(blockHit.getType() == HitResult.Type.BLOCK);
 
-        player.level.playSound(
+        player.level().playSound(
                 null,
                 player.getX(), player.getY(), player.getZ(),
                 side == PortalGunRecord.PortalGunSide.blue ?
@@ -262,7 +266,7 @@ public class PortalGunItem extends Item implements IAnimatable {
             PortalPolyfill.setOtherSideOrientation(portal, otherSideInfo.portalOrientation()); //portal.setOtherSideOrientation(otherSideInfo.portalOrientation());
             portal.setIsVisible(true);
             portal.teleportable = true;
-            player.level.playSound(
+            player.level().playSound(
                     null,
                     player.getX(), player.getY(), player.getZ(),
                     PortalGunMod.PORTAL_OPEN_EVENT.get(),
@@ -298,7 +302,7 @@ public class PortalGunItem extends Item implements IAnimatable {
         // Is this a vanilla bug?
         // This should be fixed in later ImmPtl versions.
         if (world.dimension() == Level.END) {
-            EndDragonFight endDragonFight = world.dragonFight();
+            EndDragonFight endDragonFight = world.getDragonFight();
             if (endDragonFight != null) {
                 if (!endDragonFight.hasPreviouslyKilledDragon()) {
                     player.displayClientMessage(
@@ -359,7 +363,7 @@ public class PortalGunItem extends Item implements IAnimatable {
             return dir.getNormal().getX() * viewVectorLocal.x + dir.getNormal().getZ() * viewVectorLocal.z;
         }).reversed());
 
-        BlockPos portalAreaSize = new BlockPos(kind.getWidth(), kind.getHeight(), 1);
+        BlockPos portalAreaSize = new BlockPos((int) Math.floor(kind.getWidth()), (int) Math.floor(kind.getHeight()), 1);
 
         for (Direction upDir : upDirCandidates) {
             AARotation rot = AARotation.getAARotationFromYZ(upDir, wallFacing);

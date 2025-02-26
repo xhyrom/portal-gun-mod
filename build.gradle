@@ -138,7 +138,11 @@ repositories {
     // flatDir {
     //     dir 'libs'
     // }
+    mavenCentral()
     mavenLocal()
+    maven {
+        url "https://cursemaven.com"
+    }
     maven {
         name = 'GeckoLib'
         url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
@@ -170,9 +174,11 @@ dependencies {
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19:3.1.40')
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.7')
 
-    implementation fg.deobf('qouteall:ImmersivePortalsModForForge:2.3.6')
+    implementation fg.deobf('curse.maven:immersive-portals-for-forge-355440:6211092')
+
+    implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
     //implementation fg.deobf('qouteall:ImmersivePortalsModForForge:v2.3.6')
 
     // For more info:
