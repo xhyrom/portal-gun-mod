@@ -1,4 +1,11 @@
-# Portal Gun Mod
+<div id="toc"><img src=".github/logo.png" alt="Blom" width="90" align="right">
+  <ul style="list-style: none">
+    <summary>
+      <h1>Portal Gun Mod</h1>
+    </summary>
+  </ul>
+</div>
+
 
 Reimplementation of [iPortalTeam's Portal Gun Mod](https://github.com/iPortalTeam/PortalGun) for [Forge](https://files.minecraftforge.net/) [1.20.1](https://minecraft.wiki/w/Java_Edition_1.20.1).
 
