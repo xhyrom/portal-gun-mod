@@ -176,7 +176,7 @@ dependencies {
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
     implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.7')
 
-    implementation fg.deobf('curse.maven:immersive-portals-for-forge-355440:6211092')
+    implementation fg.deobf('curse.maven:immersive-portals-for-forge-355440:6368524')
 
     implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
     //implementation fg.deobf('qouteall:ImmersivePortalsModForForge:v2.3.6')

@@ -19,7 +19,7 @@ public class MixinImmPtlBlockManipulationClient {
     private static Minecraft client;
 
     @Inject(
-            method = "myAttackBlock",
+            method = "withSwitchedContext",
             at = @At("HEAD"),
             cancellable = true,
             remap = false
