@@ -4,19 +4,22 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import me.Thelnfamous1.portalgun.DyeColorArgument;
 import me.Thelnfamous1.portalgun.PortalGunCommands;
-import me.Thelnfamous1.portalgun.PortalManipulationHelper;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.core.Registry;
-import net.minecraft.world.InteractionResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import tk.meowmc.portalgun.client.PortalGunClient;
-import tk.meowmc.portalgun.client.renderer.models.PortalOverlayModel;
+import net.minecraft.network.chat.Component;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
 import tk.meowmc.portalgun.config.PortalGunConfig;
 import tk.meowmc.portalgun.entities.CustomPortal;
 import tk.meowmc.portalgun.items.ClawItem;
@@ -34,29 +37,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.my_util.IntBox;
-import software.bernie.geckolib.GeckoLib;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,23 +65,18 @@ public class PortalGunMod {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     // Registries
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
-    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, MODID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, MODID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, MODID);
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final RegistryObject<PortalGunItem> PORTAL_GUN = ITEMS.register("portal_gun", () -> new PortalGunItem(
-            new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)
-    ));
-    public static final RegistryObject<Item> PORTAL_GUN_BODY = ITEMS.register("portal_gun_body", () -> new Item(
-            new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.RARE)
-    ));
-    public static final RegistryObject<Item> PORTAL_GUN_CLAW = ITEMS.register("portal_gun_claw", () -> new ClawItem(
-            new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.RARE)
-    ));
+    public static final DeferredItem<PortalGunItem> PORTAL_GUN = ITEMS.registerItem("portal_gun", PortalGunItem::new, new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC));
+    public static final DeferredItem<Item> PORTAL_GUN_BODY = ITEMS.registerItem("portal_gun_body", Item::new, new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.RARE));
+    public static final DeferredItem<Item> PORTAL_GUN_CLAW = ITEMS.registerItem("portal_gun_claw", ClawItem::new, new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.RARE));
 
-    public static RegistryObject<CreativeModeTab> TAB = TABS.register("portal_gun_tab", () -> CreativeModeTab.builder()
+    public static Supplier<CreativeModeTab> TAB = TABS.register("portal_gun_tab", () -> CreativeModeTab.builder()
+            .title(Component.translatable("category." + MODID))
             .icon(() -> new ItemStack(PortalGunMod.PORTAL_GUN.get()))
             .displayItems((params, outputs) -> {
                 outputs.accept(PortalGunMod.PORTAL_GUN.get());
@@ -97,7 +84,7 @@ public class PortalGunMod {
             .build()
     );
 
-    public static final RegistryObject<EntityType<CustomPortal>> CUSTOM_PORTAL = ENTITY_TYPES.register("custom_portal", () -> EntityType.Builder.of(
+    public static final Supplier<EntityType<CustomPortal>> CUSTOM_PORTAL = ENTITY_TYPES.register("custom_portal", () -> EntityType.Builder.of(
             CustomPortal::new, MobCategory.MISC
     ).build(id("custom_portal").toString()));
 
@@ -106,17 +93,17 @@ public class PortalGunMod {
     public static final ResourceLocation PORTAL_OPEN = id("portal_open");
     public static final ResourceLocation PORTAL_CLOSE = id("portal_close");
 
-    public static RegistryObject<SoundEvent> PORTAL1_SHOOT_EVENT = SOUNDS.register("portal1_shoot", () -> SoundEvent.createVariableRangeEvent(PORTAL1_SHOOT));
-    public static RegistryObject<SoundEvent> PORTAL2_SHOOT_EVENT = SOUNDS.register("portal2_shoot", () -> SoundEvent.createVariableRangeEvent(PORTAL2_SHOOT));
-    public static RegistryObject<SoundEvent> PORTAL_OPEN_EVENT = SOUNDS.register("portal_open", () -> SoundEvent.createVariableRangeEvent(PORTAL_OPEN));
-    public static RegistryObject<SoundEvent> PORTAL_CLOSE_EVENT = SOUNDS.register("portal_close", () -> SoundEvent.createVariableRangeEvent(PORTAL_CLOSE));
+    public static Supplier<SoundEvent> PORTAL1_SHOOT_EVENT = SOUNDS.register("portal1_shoot", () -> SoundEvent.createVariableRangeEvent(PORTAL1_SHOOT));
+    public static Supplier<SoundEvent> PORTAL2_SHOOT_EVENT = SOUNDS.register("portal2_shoot", () -> SoundEvent.createVariableRangeEvent(PORTAL2_SHOOT));
+    public static Supplier<SoundEvent> PORTAL_OPEN_EVENT = SOUNDS.register("portal_open", () -> SoundEvent.createVariableRangeEvent(PORTAL_OPEN));
+    public static Supplier<SoundEvent> PORTAL_CLOSE_EVENT = SOUNDS.register("portal_close", () -> SoundEvent.createVariableRangeEvent(PORTAL_CLOSE));
 
     private static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, MODID);
-    private static final RegistryObject<SingletonArgumentInfo<DyeColorArgument>> DYE_COLOR_COMMAND_ARGUMENT_TYPE = COMMAND_ARGUMENT_TYPES.register("dye_color", () ->
+    private static final Supplier<SingletonArgumentInfo<DyeColorArgument>> DYE_COLOR_COMMAND_ARGUMENT_TYPE = COMMAND_ARGUMENT_TYPES.register("dye_color", () ->
             ArgumentTypeInfos.registerByClass(DyeColorArgument.class, SingletonArgumentInfo.contextFree(DyeColorArgument::color)));
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
     public static boolean isBlockSolid(Level world, BlockPos p) {
@@ -176,7 +163,7 @@ public class PortalGunMod {
         }
 
         Vec3 endingPoint = startingPoint.add(direction.scale(maxDistance));
-        Optional<Pair<Portal, Vec3>> portalHit = PortalManipulationHelper.raytracePortals(
+        Optional<Pair<Portal, Vec3>> portalHit = PortalManipulation.raytracePortals(
                 world, startingPoint, endingPoint, true
         );
 
@@ -242,9 +229,7 @@ public class PortalGunMod {
         }
     }
 
-    public PortalGunMod() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
+    public PortalGunMod(IEventBus modEventBus, ModContainer modContainer) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         ENTITY_TYPES.register(modEventBus);
@@ -252,23 +237,17 @@ public class PortalGunMod {
         TABS.register(modEventBus);
         COMMAND_ARGUMENT_TYPES.register(modEventBus);
 
-        GeckoLib.initialize();
         PortalGunConfig.register();
 
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (PlayerInteractEvent.LeftClickBlock event) -> {
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (PlayerInteractEvent.LeftClickBlock event) -> {
             ItemStack stack = event.getEntity().getItemInHand(event.getHand());
             if (stack.getItem() == PORTAL_GUN.get()) {
                 event.setCanceled(true);
-                event.setCancellationResult(InteractionResult.FAIL);
             }
         });
 
-        MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
+        NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
             PortalGunCommands.register(event.getDispatcher());
         });
-
-        if(FMLEnvironment.dist == Dist.CLIENT){
-            new PortalGunClient().onInitializeClient();
-        }
     }
 }

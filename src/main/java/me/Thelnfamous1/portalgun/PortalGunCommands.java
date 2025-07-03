@@ -16,7 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.server.command.EnumArgument;
+import net.neoforged.neoforge.server.command.EnumArgument;
 import tk.meowmc.portalgun.PortalGunMod;
 import tk.meowmc.portalgun.PortalGunRecord;
 
@@ -70,11 +70,7 @@ public class PortalGunCommands {
     }
 
     private static int getTextureColor(DyeColor dyeColor) {
-        float[] textureDiffuseColors = dyeColor.getTextureDiffuseColors();
-        int r = (int) (textureDiffuseColors[0] * 255F);
-        int g = (int) (textureDiffuseColors[1] * 255F);
-        int b = (int) (textureDiffuseColors[2] * 255F);
-        return (r << 16) | (g << 8) | b;
+        return dyeColor.getTextureDiffuseColor();
     }
 
     private static int setCustomPortalColor(CommandContext<CommandSourceStack> context, int color) throws CommandSyntaxException {

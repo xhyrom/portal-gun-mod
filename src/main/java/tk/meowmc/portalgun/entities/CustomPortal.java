@@ -2,7 +2,6 @@ package tk.meowmc.portalgun.entities;
 
 import me.Thelnfamous1.portalgun.ColoredPortal;
 import me.Thelnfamous1.portalgun.IntBoxHelper;
-import me.Thelnfamous1.portalgun.PortalHelper;
 import tk.meowmc.portalgun.PortalGunMod;
 import tk.meowmc.portalgun.PortalGunRecord;
 import net.minecraft.nbt.CompoundTag;
@@ -131,7 +130,7 @@ public class CustomPortal extends Portal implements ColoredPortal {
             setIsVisible(true);
             setDestination(otherSideInfo.portalPos());
             setDestinationDimension(otherSideInfo.portalDim());
-            PortalHelper.setOtherSideOrientation(this, otherSideInfo.portalOrientation());//setOtherSideOrientation(otherSideInfo.portalOrientation());
+            setOtherSideOrientation(otherSideInfo.portalOrientation());
             reloadAndSyncToClient();
         }
     }

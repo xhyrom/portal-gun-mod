@@ -4,6 +4,7 @@ package tk.meowmc.portalgun.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import tk.meowmc.portalgun.PortalGunMod;
@@ -28,7 +29,7 @@ public class CustomPortalEntityRenderer extends EntityRenderer<CustomPortal> {
     }
 
     @Override
-    public void render(CustomPortal entity, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
+    public void render(@NotNull CustomPortal entity, float yaw, float tickDelta, @NotNull PoseStack matrices, @NotNull MultiBufferSource vertexConsumers, int light) {
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
 
         if (!entity.isInFrontOfPortal(CHelper.getCurrentCameraPos())) {
@@ -58,14 +59,15 @@ public class CustomPortalEntityRenderer extends EntityRenderer<CustomPortal> {
                 matrices,
                 vertexConsumers.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(entity))),
                 LightTexture.pack(15, 15),
-                NO_OVERLAY, r / 255.0f, g / 255.0f, b / 255.0f, 1.0F
+                NO_OVERLAY,
+                (0xFF << 24) | (r << 16) | (g << 8) | b
         );
 
         matrices.popPose();
     }
 
     @Override
-    public ResourceLocation getTextureLocation(CustomPortal entity) {
+    public @NotNull ResourceLocation getTextureLocation(CustomPortal entity) {
         return entity.isVisible() ? OVERLAY_FRAME : OVERLAY_FILLED;
     }
 

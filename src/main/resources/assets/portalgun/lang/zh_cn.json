@@ -1,5 +1,13 @@
 {
+  "item.portalgun.portal_gun": "传送枪",
   "item.portalgun.portal_gun_desc": "光圈科技手持式传送门设备",
+  "side.portalgun.blue": "Blue",
+  "side.portalgun.orange": "Orange",
+  "item.portalgun.portal_gun.custom_portal_color": "%s Portal Color: %s",
+  "commands.portalgun.customportalcolors.not_holding_portal_gun": "You need to be holding a portal gun",
+  "commands.portalgun.customportalcolors.set": "Set custom %s portal color to %s for %s",
+  "commands.portalgun.customportalcolors.clear.all": "Cleared all custom portal colors for %s",
+  "commands.portalgun.customportalcolors.clear": "Cleared custom %s portal color for %s",
   "item.portalgun.portalgun_body": "传送设备主体",
   "item.portalgun.portalgun_claw": "传送设备钩爪",
   "subtitles.portalgun.portal1_shoot": "发射主传送门",
@@ -8,7 +16,6 @@
   "subtitles.portalgun.portal_close": "传送门关闭",
   "key.portalgun.clearportals": "清除传送门",
   "category.portalgun": "传送枪",
-  "item.portalgun.portal_gun": "传送枪",
   "text.autoconfig.portalgun.option.enabled.portalFunneling": "Portal Funneling",
   "text.autoconfig.portalgun.title": "Portal Gun Fabric Options"
 }

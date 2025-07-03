@@ -3,11 +3,16 @@ package tk.meowmc.portalgun.items;
 import me.Thelnfamous1.portalgun.*;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.my_util.AARotation;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.network.GeckoLibNetwork;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
 import tk.meowmc.portalgun.PortalGunMod;
 import tk.meowmc.portalgun.PortalGunRecord;
 import tk.meowmc.portalgun.client.renderer.PortalGunItemRenderer;
@@ -34,7 +39,6 @@ import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,11 +48,6 @@ import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
@@ -136,11 +135,11 @@ public class PortalGunItem extends Item implements GeoItem, GeoAnimatable, Color
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level world, @NotNull List<Component> tooltip, @NotNull TooltipFlag context) {
-        super.appendHoverText(stack, world, tooltip, context);
+    public void appendHoverText(@NotNull ItemStack stack, TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
 
         tooltip.add(Component.translatable("item.portalgun.portal_gun_desc").withStyle(ChatFormatting.GOLD));
-        this.addCustomPortalColorsTooltip(stack, world, tooltip, context);
+        this.addCustomPortalColorsTooltip(stack, context, tooltip, flag);
     }
 
     public void onAttack(
@@ -243,6 +242,8 @@ public class PortalGunItem extends Item implements GeoItem, GeoAnimatable, Color
             Validate.notNull(portal);
         }
 
+        ColoredPortalGun.colorPortal(portal, itemStack, side);
+
         portal.setOriginPos(newPortalOrigin);
         portal.setOrientationAndSize(
                 Vec3.atLowerCornerOf(rightDir.getNormal()),
@@ -255,23 +256,23 @@ public class PortalGunItem extends Item implements GeoItem, GeoAnimatable, Color
         portal.airBox = placement.areaBox;
         portal.thisSideUpdateCounter = thisSideInfo == null ? 0 : thisSideInfo.updateCounter();
         portal.otherSideUpdateCounter = otherSideInfo == null ? 0 : otherSideInfo.updateCounter();
-        PortalManipulationHelper.makePortalRound(portal, 20);
-        PortalHelper.disableDefaultAnimation(portal);
+        PortalManipulation.makePortalRound(portal, 20);
+        portal.disableDefaultAnimation();
 
         if (otherSideInfo == null) {
             // it's unpaired, invisible and not teleportable
             portal.setDestinationDimension(world.dimension());
             portal.setDestination(newPortalOrigin.add(0, 10, 0));
             portal.setIsVisible(false);
-            portal.teleportable = false;
+            portal.setTeleportable(false);
         }
         else {
             // it's linked
             portal.setDestinationDimension(otherSideInfo.portalDim());
             portal.setDestination(otherSideInfo.portalPos());
-            PortalHelper.setOtherSideOrientation(portal, otherSideInfo.portalOrientation()); //portal.setOtherSideOrientation(otherSideInfo.portalOrientation());
+            portal.setOtherSideOrientation(otherSideInfo.portalOrientation());
             portal.setIsVisible(true);
-            portal.teleportable = true;
+            portal.setTeleportable(true);
             player.level().playSound(
                     null,
                     player.getX(), player.getY(), player.getZ(),
@@ -343,7 +344,7 @@ public class PortalGunItem extends Item implements GeoItem, GeoAnimatable, Color
         Direction playerGravity = GravityChangerInterface.invoker.getGravityDirection(player);
         Direction transformedGravity = raytraceResult.portalsPassingThrough().stream().reduce(
                 playerGravity,
-                (gravity, portal) -> PortalHelper.getTeleportedGravityDirection(portal, gravity),//portal.getTeleportedGravityDirection(gravity),
+                (gravity, portal) -> portal.getTeleportedGravityDirection(gravity),//portal.getTeleportedGravityDirection(gravity),
                 (g1, g2) -> {throw new RuntimeException();}
         );
         Vec3 viewVector = player.getViewVector(1);
@@ -395,7 +396,7 @@ public class PortalGunItem extends Item implements GeoItem, GeoAnimatable, Color
                 world,
                 wallArea.toRealNumberBox().inflate(0.1),
                 IPGlobal.maxNormalPortalRadius,
-                p -> PortalHelper.getApproximateFacingDirection(p) == wallFacing
+                p -> p.getApproximateFacingDirection() == wallFacing
                         && IntBox.getIntersect(p.wallBox, wallArea) != null
         );
         return !portals.isEmpty();

@@ -1,30 +1,29 @@
 package tk.meowmc.portalgun.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class PortalGunConfig /*implements ConfigData*/ {
     //@ConfigEntry.Gui.TransitiveObject
     //@ConfigEntry.Category("enabled")
     public final Enabled enabled = new Enabled();
-    static final ForgeConfigSpec commonSpec;
+    static final ModConfigSpec commonSpec;
     public static final PortalGunConfig COMMON;
     static {
-        final Pair<PortalGunConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(PortalGunConfig::new);
+        final Pair<PortalGunConfig, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(PortalGunConfig::new);
         commonSpec = specPair.getRight();
         COMMON = specPair.getLeft();
     }
 
-    private PortalGunConfig(ForgeConfigSpec.Builder builder) {
+    private PortalGunConfig(ModConfigSpec.Builder builder) {
         builder.push("enabled");
         builder.pop();
     }
 
     public static void register() {
         //AutoConfig.register(PortalGunConfig.class, JanksonConfigSerializer::new);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
+        ModLoadingContext.get().getActiveContainer().registerConfig(net.neoforged.fml.config.ModConfig.Type.COMMON, commonSpec);
     }
 
     public static PortalGunConfig get() {

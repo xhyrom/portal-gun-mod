@@ -1,23 +1,24 @@
 package me.Thelnfamous1.portalgun;
 
 import net.minecraft.Util;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.component.CustomData;
 import tk.meowmc.portalgun.PortalGunMod;
 import tk.meowmc.portalgun.PortalGunRecord;
 import tk.meowmc.portalgun.entities.CustomPortal;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public interface ColoredPortalGun {
-
     String CUSTOM_PORTAL_COLORS_TAG = "CustomPortalColors";
     String CUSTOM_PORTAL_COLOR_KEY = Util.makeDescriptionId("item", PortalGunMod.id("portal_gun/custom_portal_color"));
 
@@ -42,36 +43,64 @@ public interface ColoredPortalGun {
     }
 
     default boolean hasCustomPortalColorForSide(ItemStack portalGun, PortalGunRecord.PortalGunSide side) {
-        CompoundTag customPortalColors = portalGun.getTagElement(CUSTOM_PORTAL_COLORS_TAG);
-        return customPortalColors != null && customPortalColors.contains(side.name(), Tag.TAG_ANY_NUMERIC);
+        CustomData data = portalGun.get(DataComponents.CUSTOM_DATA);
+        if (data == null || !data.contains(CUSTOM_PORTAL_COLORS_TAG)) {
+            return false;
+        }
+
+        CompoundTag customPortalColors = data.copyTag().getCompound(CUSTOM_PORTAL_COLORS_TAG);
+        return customPortalColors.contains(side.name(), Tag.TAG_ANY_NUMERIC);
     }
 
     default int getPortalColorForSide(ItemStack portalGun, PortalGunRecord.PortalGunSide side) {
-        CompoundTag customPortalColors = portalGun.getTagElement(CUSTOM_PORTAL_COLORS_TAG);
-        return customPortalColors != null && customPortalColors.contains(side.name(), Tag.TAG_ANY_NUMERIC) ? customPortalColors.getInt(side.name()) : side.getColorInt();
+        CustomData data = portalGun.get(DataComponents.CUSTOM_DATA);
+        System.out.println(data);
+        if (data == null || !data.contains(CUSTOM_PORTAL_COLORS_TAG)) {
+            return side.getColorInt();
+        }
+
+        CompoundTag customPortalColors = data.copyTag().getCompound(CUSTOM_PORTAL_COLORS_TAG);
+        return customPortalColors.contains(side.name(), Tag.TAG_ANY_NUMERIC)
+                ? customPortalColors.getInt(side.name())
+                : side.getColorInt();
     }
 
     default void setCustomPortalColorForSide(ItemStack portalGun, int pColor, PortalGunRecord.PortalGunSide side) {
-        portalGun.getOrCreateTagElement(CUSTOM_PORTAL_COLORS_TAG).putInt(side.name(), pColor);
+        CustomData data = portalGun.get(DataComponents.CUSTOM_DATA);
+        CompoundTag tag = data == null ? new CompoundTag() : data.copyTag();
+
+        CompoundTag tt = tag.getCompound(CUSTOM_PORTAL_COLORS_TAG);
+        tt.putInt(side.name(), pColor);
+
+        tag.put(CUSTOM_PORTAL_COLORS_TAG, tt);
+
+        CustomData.set(DataComponents.CUSTOM_DATA, portalGun, tag);
     }
 
     default void clearCustomPortalColorForSide(ItemStack portalGun, PortalGunRecord.PortalGunSide side) {
-        CompoundTag customPortalColors = portalGun.getTagElement(CUSTOM_PORTAL_COLORS_TAG);
-        if (customPortalColors != null && customPortalColors.contains(side.name())) {
+        CustomData data = portalGun.get(DataComponents.CUSTOM_DATA);
+        if (data == null || !data.contains(CUSTOM_PORTAL_COLORS_TAG)) {
+            return;
+        }
+
+        CompoundTag customPortalColors = data.copyTag().getCompound(CUSTOM_PORTAL_COLORS_TAG);
+        if (customPortalColors.contains(side.name())) {
             customPortalColors.remove(side.name());
         }
     }
 
-    default void addCustomPortalColorsTooltip(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context){
-        if (stack.hasTag() && stack.getTag().contains(CUSTOM_PORTAL_COLORS_TAG, Tag.TAG_COMPOUND)) {
-            CompoundTag customPortalColors = stack.getTag().getCompound(CUSTOM_PORTAL_COLORS_TAG);
-            for(PortalGunRecord.PortalGunSide side : PortalGunRecord.PortalGunSide.values()){
-                if (customPortalColors.contains(side.name(), Tag.TAG_ANY_NUMERIC)) {
-                    tooltip.add(Component.translatable(
-                            CUSTOM_PORTAL_COLOR_KEY,
-                            getSideDisplayName(side),
-                            getColorName(customPortalColors.getInt(side.name()))));
-                }
+    default void addCustomPortalColorsTooltip(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag){
+        if (!stack.has(DataComponents.CUSTOM_DATA) || !Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).contains(CUSTOM_PORTAL_COLORS_TAG)) {
+            return;
+        }
+
+        CompoundTag customPortalColors = stack.get(DataComponents.CUSTOM_DATA).copyTag().getCompound(CUSTOM_PORTAL_COLORS_TAG);
+        for(PortalGunRecord.PortalGunSide side : PortalGunRecord.PortalGunSide.values()){
+            if (customPortalColors.contains(side.name(), Tag.TAG_ANY_NUMERIC)) {
+                tooltip.add(Component.translatable(
+                        CUSTOM_PORTAL_COLOR_KEY,
+                        getSideDisplayName(side),
+                        getColorName(customPortalColors.getInt(side.name()))));
             }
         }
     }

@@ -51,7 +51,7 @@ public class PortalOverlayModel extends EntityModel<CustomPortal> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        base.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int i1, int i2) {
+        base.render(poseStack, vertexConsumer, i, i1, i2);
     }
 }

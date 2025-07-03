@@ -1,5 +1,7 @@
 package tk.meowmc.portalgun;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
@@ -12,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.dimension.DimId;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import java.util.HashMap;
@@ -121,7 +122,10 @@ public class PortalGunRecord extends SavedData {
         static PortalInfo fromTag(CompoundTag tag) {
             return new PortalInfo(
                     tag.getUUID("portalId"),
-                    DimId.idToKey(new ResourceLocation(tag.getString("portalDim"))),
+                    ResourceKey.create(
+                            Registries.DIMENSION,
+                            ResourceLocation.parse(tag.getString("portalDim"))
+                    ),
                     new Vec3(
                             tag.getDouble("portalPosX"),
                             tag.getDouble("portalPosY"),
@@ -143,17 +147,19 @@ public class PortalGunRecord extends SavedData {
         ServerLevel overworld = MiscHelper.getServer().overworld();
 
         return overworld.getDataStorage().computeIfAbsent(
-                PortalGunRecord::load,
-                () -> {
-                    Helper.log("Portal gun record initialized ");
-                    return new PortalGunRecord(new HashMap<>());
-                },
+                new SavedData.Factory<PortalGunRecord>(
+                        () -> {
+                            Helper.log("Portal gun record initialized ");
+                            return new PortalGunRecord(new HashMap<>());
+                        },
+                        PortalGunRecord::load
+                ),
                 "portal_gun_record"
         );
     }
 
     @Override
-    public CompoundTag save(CompoundTag compoundTag) {
+    public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
         ListTag dataTag = new ListTag();
 
         data.forEach((key, value) -> {
@@ -168,7 +174,7 @@ public class PortalGunRecord extends SavedData {
         return compoundTag;
     }
 
-    public static PortalGunRecord load(CompoundTag compoundTag) {
+    public static PortalGunRecord load(CompoundTag compoundTag, HolderLookup.Provider provider) {
         ListTag dataTag = compoundTag.getList("data", 10);
 
         try {
