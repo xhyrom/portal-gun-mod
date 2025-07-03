@@ -7,14 +7,14 @@
 </div>
 
 
-Reimplementation of [iPortalTeam's Portal Gun Mod](https://github.com/iPortalTeam/PortalGun) for [Forge](https://files.minecraftforge.net/) [1.20.1](https://minecraft.wiki/w/Java_Edition_1.20.1).
+Reimplementation of [iPortalTeam's Portal Gun Mod](https://github.com/iPortalTeam/PortalGun) for [Forge](https://files.minecraftforge.net/).
 
 <img src="https://s2.loli.net/2023/03/19/mxdDAr76Y3RwV9B.png" alt="portal_gun.png" width="300"/>
 
 ### Requirements
 
-- [GeckoLib](https://modrinth.com/mod/geckolib/version/LwI6czff)
-- [Immersive Portals (for Forge)](https://modrinth.com/mod/immersive-portals-neoforge/version/3.0.0)
+- [GeckoLib](https://modrinth.com/mod/geckolib)
+- [Immersive Portals (for Forge)](https://modrinth.com/mod/immersive-portals-neoforge)
 
 ### Crafting Recipe
 
