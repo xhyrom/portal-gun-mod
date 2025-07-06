@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CB"
+  ],
+  "key": {
+    "B": {
+      "item": "portalgun:portal_gun_body"
+    },
+    "C": {
+      "item": "portalgun:portal_gun_claw"
+    }
+  },
+  "result": {
+    "id": "portalgun:portal_gun"
+  }
+}

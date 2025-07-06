@@ -93,6 +93,8 @@ public class PortalGunMod {
             .icon(() -> new ItemStack(PortalGunMod.PORTAL_GUN.get()))
             .displayItems((params, outputs) -> {
                 outputs.accept(PortalGunMod.PORTAL_GUN.get());
+                outputs.accept(PortalGunMod.PORTAL_GUN_BODY.get());
+                outputs.accept(PortalGunMod.PORTAL_GUN_CLAW.get());
             })
             .build()
     );
