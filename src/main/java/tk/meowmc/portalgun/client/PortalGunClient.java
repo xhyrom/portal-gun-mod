@@ -1,7 +1,10 @@
 package tk.meowmc.portalgun.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import tk.meowmc.portalgun.PortalGunMod;
 import tk.meowmc.portalgun.client.renderer.CustomPortalEntityRenderer;
 import tk.meowmc.portalgun.client.renderer.models.PortalOverlayModel;
@@ -49,19 +52,34 @@ public class PortalGunClient {
             event.registerEntityRenderer(PortalGunMod.CUSTOM_PORTAL.get(), CustomPortalEntityRenderer::new);
         });
 
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (InputEvent.InteractionKeyMappingTriggered event) -> {
-            if(event.isAttack() && event.getKeyMapping() == Minecraft.getInstance().options.keyAttack && event.getHand() == InteractionHand.MAIN_HAND){
-                if (Minecraft.getInstance().hitResult == null || Minecraft.getInstance().player == null) {
-                    return;
-                }
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (PlayerInteractEvent.LeftClickBlock event) -> {
+            ItemStack stack = event.getEntity().getItemInHand(event.getHand());
+            if (stack.getItem() == PortalGunMod.PORTAL_GUN.get()) {
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.FAIL);
+            }
+        });
 
-                ItemStack mainHandItem = Minecraft.getInstance().player.getMainHandItem();
-                if (mainHandItem.getItem() == PortalGunMod.PORTAL_GUN.get()) {
-                    McRemoteProcedureCall.tellServerToInvoke(
-                            "tk.meowmc.portalgun.misc.RemoteCallables.onClientLeftClickPortalGun"
-                    );
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (InputEvent.MouseButton.Pre event) -> {
+            if (event.getButton() == 0 && event.getAction() == 1) {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player == null || mc.level == null) return;
+
+                HitResult hit = mc.hitResult;
+                if (hit == null || hit.getType() == HitResult.Type.MISS) return;
+
+                ItemStack stack = mc.player.getMainHandItem();
+                if (stack.getItem() == PortalGunMod.PORTAL_GUN.get()) {
+                    ItemCooldowns cooldowns = mc.player.getCooldowns();
+                    float cooldownPercent = cooldowns.getCooldownPercent(PortalGunMod.PORTAL_GUN.get(), 0);
+
+                    if (cooldownPercent < 0.001) {
+                        McRemoteProcedureCall.tellServerToInvoke(
+                                "tk.meowmc.portalgun.misc.RemoteCallables.onClientLeftClickPortalGun"
+                        );
+                    }
+
                     event.setCanceled(true);
-                    event.setSwingHand(false);
                 }
             }
         });

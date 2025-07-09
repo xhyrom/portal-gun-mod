@@ -166,7 +166,6 @@ public class PortalGunItem extends Item implements GeoItem, GeoAnimatable, Color
             InteractionHand hand,
             PortalGunRecord.PortalGunSide side
     ) {
-        ItemStack itemStack = player.getItemInHand(hand);
         player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
 
         PortalGunMod.PortalAwareRaytraceResult raytraceResult = PortalGunMod.portalAwareRayTrace(player, 100);
