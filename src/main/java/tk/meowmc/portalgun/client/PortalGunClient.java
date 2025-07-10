@@ -63,9 +63,6 @@ public class PortalGunClient {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.player == null || mc.level == null) return;
 
-                HitResult hit = mc.hitResult;
-                if (hit == null || hit.getType() == HitResult.Type.MISS) return;
-
                 ItemStack stack = mc.player.getMainHandItem();
                 if (stack.getItem() == PortalGunMod.PORTAL_GUN.get()) {
                     ItemCooldowns cooldowns = mc.player.getCooldowns();
