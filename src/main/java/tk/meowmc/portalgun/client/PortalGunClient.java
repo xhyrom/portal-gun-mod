@@ -61,7 +61,7 @@ public class PortalGunClient {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (InputEvent.MouseButton.Pre event) -> {
             if (event.getButton() == 0 && event.getAction() == 1) {
                 Minecraft mc = Minecraft.getInstance();
-                if (mc.player == null || mc.level == null) return;
+                if (mc.player == null || mc.level == null || mc.screen != null) return;
 
                 ItemStack stack = mc.player.getMainHandItem();
                 if (stack.getItem() == PortalGunMod.PORTAL_GUN.get()) {
